@@ -211,26 +211,27 @@ return to the implications in \S\ref{sec:interpretation}.
 \centering
 \caption{Observation inventory for 2024-06-01\,00\,UTC
 (window $[t_0-21\mathrm{h},t_0+3\mathrm{h}]$, UFS GEFSv13 replay).
-``RO'' = GNSS radio occultation.}
+``RO'' = GNSS radio occultation; ``bkg.''\ marks background (first
+guess) values sampled at the report locations.}
 \label{tab:obs}
 \small
-\begin{tabular}{llr}
+\begin{tabular}{@{}llr@{}}
 \toprule
 Group & Channel & Count \\
 \midrule
-\multirow{3}{*}{RO (bending angle)} & \texttt{gps} ($\alpha$, rad) & \num{2680664} \\
- & \texttt{gps\_t} (background $T$, K) & \num{2680664} \\
- & \texttt{gps\_q} (background $q$) & \num{2680664} \\
+\multirow{3}{*}{RO} & \texttt{gps} (bending angle $\alpha$) & \num{2680664} \\
+ & \texttt{gps\_t} (bkg.\ $T$) & \num{2680664} \\
+ & \texttt{gps\_q} (bkg.\ $q$) & \num{2680664} \\
 \midrule
-\multirow{4}{*}{In-situ / profiles} & $u$ & \num{1080489} \\
+\multirow{4}{*}{In-situ} & $u$ & \num{1080489} \\
  & $v$ & \num{1080489} \\
  & $T$ & \num{617321} \\
- & surface pressure & \num{428354} \\
+ & surface $p$ & \num{428354} \\
  & $q$ & \num{91356} \\
 \midrule
 \multicolumn{2}{l}{Conventional subtotal} & \num{11340001} \\
 \midrule
-\multirow{3}{*}{Radiances} & AMSU-A & \num{2136601} \\
+\multirow{3}{*}{Radiance} & AMSU-A & \num{2136601} \\
  & ATMS & \num{985798} \\
  & MHS & \num{528756} \\
 \midrule
@@ -439,8 +440,9 @@ $\mathrm{m^2\,s^{-2}}$ ($z$) and
 $\mathrm{mg\,kg^{-1}}$ ($q$); $r$ = spatial correlation;
 SR = standard-deviation ratio.}
 \label{tab:layers}
-\small
-\begin{tabular}{l cc cc cc cc cc}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}l cc cc cc cc cc@{}}
 \toprule
  & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$u$} &
    \multicolumn{2}{c}{$v$} & \multicolumn{2}{c}{$z$} &
@@ -461,8 +463,8 @@ Conventional + satellite  & \textbf{0.80} & \textbf{0.983} & \textbf{1.96} & \te
 \caption{Cost of a single 2024-06-01\,00\,UTC analysis on the M5
 laptop (32\,GB unified memory).}
 \label{tab:cost}
-\small
-\begin{tabular}{lccc}
+\footnotesize
+\begin{tabular}{@{}lccc@{}}
 \toprule
 Configuration & Device & Wall time & Peak memory \\
 \midrule
@@ -590,8 +592,9 @@ horizontal structure.
 levels, East Asia). The ``RO impact'' column is the layer-mean RMSE
 reduction of \emph{Conv (all)} relative to \emph{Conv w/o RO}.}
 \label{tab:ro}
-\small
-\begin{tabular}{l cc cc cc cc cc c}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}l cc cc cc cc cc c@{}}
 \toprule
  & \multicolumn{2}{c}{$T$} & \multicolumn{2}{c}{$u$} &
    \multicolumn{2}{c}{$v$} & \multicolumn{2}{c}{$z$} &
@@ -692,11 +695,11 @@ analysis. We interpret this next.
 \section{Interpretation: RO channels as $(O, B)$ pairs}\label{sec:interpretation}
 
 In 3D-Var the RO analysis problem is
-\begin{equation}\label{eq:3dvar}
-J = \tfrac{1}{2}(x - x_b)^{\top} B^{-1}(x - x_b)
-  + \tfrac{1}{2}\bigl(H(x) - y_o\bigr)^{\top} R^{-1}
+\begin{multline}\label{eq:3dvar}
+J = \tfrac{1}{2}\,(x - x_b)^{\top} B^{-1}(x - x_b)\\
+  + \tfrac{1}{2}\,\bigl(H(x) - y_o\bigr)^{\top} R^{-1}
       \bigl(H(x) - y_o\bigr),
-\end{equation}
+\end{multline}
 with increment $\delta x = BH^{\top}(HBH^{\top}+R)^{-1}d$ and
 innovation $d = y_o - H(x_b)$ \citep{lorenc1986analysis,
 daley1991atmospheric, courtier1994strategy}. The background enters
@@ -707,13 +710,13 @@ that a learned operator must be fed explicitly:
 
 \begin{center}
 \small
-\begin{tabular}{lll}
+\begin{tabular}{@{}lll@{}}
 \toprule
 Channel & 3D-Var analogue & Status \\
 \midrule
-\texttt{gps}   & $y_o$ (bending angle) & true observation \\
-\texttt{gps\_t} & $H(x_b)$, $T$ component & background sample \\
-\texttt{gps\_q} & $H(x_b)$, $q$ component & background sample \\
+\texttt{gps}    & $y_o$ (bending angle) & observation \\
+\texttt{gps\_t} & $H(x_b)$, $T$ part    & background \\
+\texttt{gps\_q} & $H(x_b)$, $q$ part    & background \\
 \bottomrule
 \end{tabular}
 \end{center}
