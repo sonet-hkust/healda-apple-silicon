@@ -20,6 +20,12 @@
 
 \captionsetup{font=small,labelfont=bf}
 \setlength{\bibsep}{2pt}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{dbltopnumber}{3}
 
 % ------------------------------------------------------------------
 \title{\bfseries Running an End-to-End Machine-Learning Data Assimilation
@@ -144,7 +150,9 @@ Asia, we quantify the analysis impact of (i) satellite radiances
 (AMSU-A, ATMS, MHS) on top of the conventional stream and (ii) GNSS
 radio occultation observations within it, via a four-way ablation
 (all conventional / conventional without RO / RO three-channel /
-RO bending-angle only) (\S\ref{sec:sat}, \S\ref{sec:ro}).
+RO bending-angle only) (\S\ref{sec:sat}, \S\ref{sec:ro}); the RO
+ablation is undertaken out of the author's professional interest in
+GNSS-RO data assimilation.
 \item \textbf{Interpretation.} We clarify the semantics of the RO
 channels in the UFS diagnostic stream---the companion \texttt{gps\_t}
 and \texttt{gps\_q} channels are \emph{model-background samples at the
@@ -235,6 +243,18 @@ The reported bending angles have median $8.96\times10^{-4}$\,rad,
 median tangent pressure 30.4\,hPa, and geographic coverage to
 $\pm79^{\circ}$ latitude, consistent with the limb-sounding geometry
 of GNSS RO \citep{kursinski1997observing,anthes2008cosmic}.
+Figure~\ref{fig:obscomp} visualizes the inventory on a logarithmic
+count axis; the dominance of the three RO channels is immediate.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig10_obs_composition.pdf}
+\caption{Observation composition of the 2024-06-01\,00\,UTC stream
+(counts of Table~\ref{tab:obs}, logarithmic axis). The three GNSS-RO
+channels dominate the conventional bucket, and AMSU-A dominates the
+radiance suite.}
+\label{fig:obscomp}
+\end{figure}
 
 \subsection{Verification data}
 Analyses are verified against the ERA5 pressure-level reanalysis
@@ -478,6 +498,25 @@ and isolated small patches degrade slightly---consistent with the
 radiance-suite weighting being optimized (at training time) for
 global rather than regional skill.
 
+\textbf{The increment itself is positive and broad-scale.}
+Figure~\ref{fig:incmap} shows the raw analysis increment,
+conv+sat $-$ conv, at 500\,hPa. Both temperature and geopotential
+increments are positive almost everywhere over East Asia, with
+$z_{500}$ lifted by roughly $100$--$400\ \mathrm{m^2\,s^{-2}}$
+($\approx$10--40\,gpm) across the domain---the signature of the
+radiances pulling the analysis upward toward ERA5, consistent with
+the bias removal quantified next.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig12_increment_map.pdf}
+\caption{Direct analysis increment of adding satellite radiances
+(conv+sat $-$ conv) at 500\,hPa over East Asia: temperature (left,
+K) and geopotential (right, $\mathrm{m^2\,s^{-2}}$). The increment is
+positive nearly everywhere, lifting the mass field toward ERA5.}
+\label{fig:incmap}
+\end{figure*}
+
 \textbf{The mass-field bias is removed.} The conventional analysis
 carries a zonal-mean $z_{500}$ bias of $-25$ to $-30$\,gpm across
 15--43$^{\circ}$N (Fig.~\ref{fig:satzonal}); with radiances the bias
@@ -570,12 +609,33 @@ RO impact (RMSE) & $-10.2\%$ & & $-4.9\%$ & & $-5.2\%$ & & $-12.3\%$ & & $-15.1\
 \end{tabular}
 \end{table*}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\columnwidth]{figures/fig9_zonal_bias_z500.pdf}
+\caption{Zonal-mean $z_{500}$ bias against ERA5 for the ablation
+experiments (plus the conventional-plus-satellite analysis for
+context).}
+\label{fig:robias}
+\end{figure}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig6_profile_ro.pdf}
 \caption{As Fig.~\ref{fig:satprofile}, for the RO ablation
 experiments.}
 \label{fig:roprofile}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig11_ro_cross_section.pdf}
+\caption{Temperature analysis-minus-ERA5 cross-sections at
+110$^{\circ}$E for the four RO-ablation experiments. The
+bending-angle-only analysis (right) develops a large cold bias below
+100\,hPa, while the RO three-channel analysis remains structurally
+close to the full conventional stream in the upper troposphere and
+lower stratosphere.}
+\label{fig:roxs}
 \end{figure*}
 
 \begin{figure*}[t]
@@ -594,7 +654,12 @@ bending angles constrain temperature and geopotential directly
 (through refractivity and hydrostatic balance) but influence winds
 only indirectly through geostrophic adjustment, mirroring the
 experience of variational RO assimilation
-\citep{cucurull2008utilization,healy2006assimilation}.
+\citep{cucurull2008utilization,healy2006assimilation}. The zonal-mean
+mass-field signature of the ablation is shown in
+Fig.~\ref{fig:robias}: the $-25$ to $-30$\,gpm bias of the full
+conventional analysis is barely changed by removing RO (noRO), but
+grows monotonically as the observation set is reduced to RO-only
+variants.
 
 \textbf{RO alone is competitive in the upper stratosphere and weak in
 the lower troposphere.} At 150\,hPa the RO-only (3-channel)
@@ -609,7 +674,12 @@ system. Notably, the bending-angle-only analysis has the \emph{lowest}
 100\,hPa temperature RMSE of all experiments (2.40\,K) but the lowest
 standard-deviation ratio (0.73), i.e.\ a locally accurate but
 over-smoothed field---a reminder that RMSE alone can hide the loss of
-variance in a regression toward the mean.
+variance in a regression toward the mean. The same structure is
+visible in the latitude--height cross-sections of
+Fig.~\ref{fig:roxs}: the cold bias that fills the troposphere of the
+bending-angle-only analysis and the near-neutral full column of the
+three-channel analysis, in contrast to the structured, smaller-magnitude
+bias field of the full conventional stream.
 
 \textbf{Background companions carry decisive information.} Dropping
 \texttt{gps\_t}/\texttt{gps\_q} from the RO-only analysis collapses
@@ -618,15 +688,6 @@ layer-mean $v$ from $r=0.441$ to $r=0.051$ (uncorrelated), $T$ from
 trained to retrieve the atmosphere from bending angles; it has been
 trained to map the \emph{pair} (observation, background) to an
 analysis. We interpret this next.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.82\columnwidth]{figures/fig9_zonal_bias_z500.pdf}
-\caption{Zonal-mean $z_{500}$ bias against ERA5 for the ablation
-experiments (plus the conventional-plus-satellite analysis for
-context).}
-\label{fig:robias}
-\end{figure}
 
 \section{Interpretation: RO channels as $(O, B)$ pairs}\label{sec:interpretation}
 
@@ -783,26 +844,15 @@ figure script and statistics) and \texttt{analysis\_outputs/}
 \texttt{earth2studio} 0.18.0, \texttt{physicsnemo} 2.2.2
 (\texttt{uv} lock file included). The HealDA checkpoint
 (\texttt{healda\_ufs\_era5.mdlus}) is fetched automatically by
-\texttt{earth2studio} on first use. Typical invocations:
-
-\begin{quote}\small
-\begin{verbatim}
-# conventional only, MPS
-python code/02_run_analysis.py --date 2024-06-01T00:00:00 \
-    --sensors conv --device mps --out conv.nc
-
-# conventional + satellite radiances, MPS
-python code/02_run_analysis.py --date 2024-06-01T00:00:00 \
-    --sensors both --device mps --out convsat.nc
-
-# RO ablations (conventional-subset switches)
-python code/02_run_analysis.py ... --conv-vars gps gps_t gps_q
-python code/02_run_analysis.py ... --conv-vars pres q t u v
-
-# CPU cross-check
-python code/02_run_analysis.py ... --device cpu
-\end{verbatim}
-\end{quote}
+\texttt{earth2studio} on first use. Each experiment in this paper is
+a single invocation of the analysis driver with a date, a device
+(\texttt{--device cpu} or \texttt{--device mps}), an output path, and
+a sensor selection: \texttt{--sensors conv} for the conventional
+stream, \texttt{--sensors both} to add microwave radiances, and
+\texttt{--conv-vars} to restrict the conventional bucket to an
+arbitrary subset of its eight channels (e.g.\ the three RO channels
+alone, or the conventional stream with RO removed)---the switch that
+enables the ablations of \S\ref{sec:ro}.
 
 The \texttt{--device mps} path applies both patches of
 \S\ref{sec:port} automatically. Native HEALPix outputs are converted
@@ -839,6 +889,13 @@ release of the checkpoint and of \texttt{earth2studio}. This study
 used the UFS GEFSv13 replay observation stream distributed through
 \texttt{earth2studio} and ERA5 from the Copernicus Climate Change
 Service.
+
+\bigskip
+\noindent\fbox{\parbox{0.97\columnwidth}{\small
+This work, including all experiments, data analysis and the writing
+of this report, was completed with the support of
+\textbf{hy4-preview-f}. Readers interested in this study are welcome
+to contact the author at \texttt{xhubw@connect.ust.hk}.}}
 
 \begin{thebibliography}{99}\small
 
